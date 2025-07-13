@@ -1,17 +1,4 @@
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-typedef char* string;
-
-//função auxiliar para testes
-void imprimirMintermos(string* mintermos, uint32_t quantidade) {
-    printf("Mintermos armazenados:\n");
-    for (uint32_t i = 0; i < quantidade; i++) {
-        printf("%s\n", mintermos[i]);
-    }
-}
+#include "utils.h"
 
 int main(int argc, char const *argv[])
 {
