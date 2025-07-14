@@ -17,12 +17,16 @@ typedef struct grupo {
 } grupo;
 
 //PROTÓTIPOS DE FUNÇÕES
-void imprimirMintermos(string* mintermos, uint32_t quantidade); 
+void imprimirStrings(string* mintermos, uint32_t quantidade); 
 
 uint32_t contarUns(string linha);
 
-void agrupar(char** vetorMintermos, uint32_t qtdMintermos, grupo* vetorImplicantes, uint32_t* qtdGrupos);
+void agrupar(string* vetorMintermos, uint32_t qtdMintermos, grupo* vetorImplicantes, uint32_t* qtdGrupos);
 
 void imprimirGrupos(grupo* vetorImplicantes, uint32_t qtdGrupos);
+
+string compararStrings(string str1, string str2, uint32_t tamanho);
+
+void compararGrupos(string** vetorImplicantes, uint32_t *qtdImplicantes, grupo* vetorGrupos, uint32_t qtdGrupos,  uint32_t qtdVariaveis);
 
 #endif

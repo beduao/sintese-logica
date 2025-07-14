@@ -53,21 +53,42 @@ int main(int argc, char const *argv[])
         }    
 
         /*
-        Cria um vetor de grupos para armazenar os implicantes. 
-        Como o máximo de 1s que uma linha pode ter é quando todas as variáveis são 1, vou usar a quantidade de varíaveis para alocar o vetor.
-        Não sei se é o ideal, já que pode ficar muito espaço sem utilizar, mas vou fazer assim de início.
+        Cria um vetor de grupos para armazenar as saídas por número de 1s
+        Atualizei para criar x grupos baseados em quantos mintermos tem, faz mais sentido assim. No pior caso, cada mintermo vei ter seu prórpio grupo.
         */
-        grupo* implicantes = calloc(numEntradas+1,sizeof(grupo)); //implicantes é um vetor de grupos com n+1 espaços (n sendo o numero de variáveis)
+        grupo* grupos = calloc(qtdMintermos,sizeof(grupo)); //vetor com os grupos
         uint32_t qtdGrupos = 0; //vai ser passado por referência na função de agrupar, que vai atualizar toda vez que adicionar um novo grupo
 
-        agrupar(mintermos,qtdMintermos,implicantes,&qtdGrupos);
+        agrupar(mintermos,qtdMintermos,grupos,&qtdGrupos); //gera o vetor de grupos
 
+        /*
+        Cria um vetor para armezar as combinações dos termos de saída
+        A partir daqui, a saída dexa de ser um vetor de grupos, e volta a ser um vetor de strings
+        com os implicantes das saídas (não são os implicantes primos ainda)
+        */
+        string* vetorImplicantes = malloc(sizeof(string));
+        uint32_t qtdImplicantes = 0;
 
+        compararGrupos(&vetorImplicantes,&qtdImplicantes,grupos,qtdGrupos,numEntradas); //gera o vetor de implicantes
 
-        //bateria de testes
-        imprimirMintermos(mintermos, qtdMintermos);
+        /* ----PROXIMOS PASSOS----
+        aplicar as comparações no vetor de implicantes até não poderem ser feitas mais combinações
+        gerar os implicantes primos
+        começar a etapa da tabela
+        */
+
+        //BATERIA DE TESTES
+        printf("Linhas com saida 1:\n");
+        imprimirStrings(mintermos, qtdMintermos);
+
         printf("\n");
-        imprimirGrupos(implicantes,qtdGrupos);
+        imprimirGrupos(grupos,qtdGrupos);
+        printf("\n");
+
+        printf("Implicantes armazenados:\n");
+        imprimirStrings(vetorImplicantes, qtdImplicantes);
+
+
 
 
         //LIBERAR MEMORIA ALOCADA
