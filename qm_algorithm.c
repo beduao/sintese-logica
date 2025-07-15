@@ -58,35 +58,39 @@ int main(int argc, char const *argv[])
         */
         grupo* grupos = calloc(qtdMintermos,sizeof(grupo)); //vetor com os grupos
         uint32_t qtdGrupos = 0; //vai ser passado por referência na função de agrupar, que vai atualizar toda vez que adicionar um novo grupo
-
         agrupar(mintermos,qtdMintermos,grupos,&qtdGrupos); //gera o vetor de grupos
 
         /*
-        Cria um vetor para armezar as combinações dos termos de saída
-        A partir daqui, a saída dexa de ser um vetor de grupos, e volta a ser um vetor de strings
-        com os implicantes das saídas (não são os implicantes primos ainda)
+        Cria um vetor para armazenar os implicantes iniciais da expressão
+        A partir daqui, a saída dexa de ser um vetor de grupos, e passa a ser um vetor de implicantes (não são os implicantes primos ainda)
         */
-        string* vetorImplicantes = malloc(sizeof(string));
-        uint32_t qtdImplicantes = 0;
-
+        implicante* vetorImplicantes = malloc(sizeof(string)); //vetor de implicantes
+        uint32_t qtdImplicantes = 0; //vai ser atualizado pela função compararGrupos a medida que ela cria um novo implicante
         compararGrupos(&vetorImplicantes,&qtdImplicantes,grupos,qtdGrupos,numEntradas); //gera o vetor de implicantes
 
+        /*
+        Seguindo a mesma lógica das outras funções, cria um vetor para armazenar os implicantes primos
+        chama a função que executa os mesmos dois passos em loop, até chegar no final
+        */
+        //implicante* implicantesPrimos = NULL; //vetor com os implicants primos FINAIS
+        //uint32_t qtdPrimos = 0;
+
         /* ----PROXIMOS PASSOS----
-        aplicar as comparações no vetor de implicantes até não poderem ser feitas mais combinações
-        gerar os implicantes primos
         começar a etapa da tabela
         */
 
         //BATERIA DE TESTES
         printf("Linhas com saida 1:\n");
+        printf("-----------------\n");
         imprimirStrings(mintermos, qtdMintermos);
+        printf("-----------------\n");
 
-        printf("\n");
+ 
         imprimirGrupos(grupos,qtdGrupos);
-        printf("\n");
+        printf("-----------------\n");
 
-        printf("Implicantes armazenados:\n");
-        imprimirStrings(vetorImplicantes, qtdImplicantes);
+
+        imprimirImplicantes(vetorImplicantes,qtdImplicantes);
 
 
 

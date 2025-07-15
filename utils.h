@@ -16,6 +16,11 @@ typedef struct grupo {
     uint32_t qtdUns;
 } grupo;
 
+typedef struct implicante {
+    string expressao;
+    string* termosCobertos;
+} implicante;
+
 //PROTÓTIPOS DE FUNÇÕES
 void imprimirStrings(string* mintermos, uint32_t quantidade); 
 
@@ -27,6 +32,12 @@ void imprimirGrupos(grupo* vetorImplicantes, uint32_t qtdGrupos);
 
 string compararStrings(string str1, string str2, uint32_t tamanho);
 
-void compararGrupos(string** vetorImplicantes, uint32_t *qtdImplicantes, grupo* vetorGrupos, uint32_t qtdGrupos,  uint32_t qtdVariaveis);
+uint8_t existe(string elemento, implicante* vetorImplicantes, uint32_t tamanhoVetor);
+
+void adicionarImplicante(implicante** vetor, uint32_t* qtd, string nova, string termo1, string termo2);
+
+void compararGrupos(implicante** vetorImplicantes, uint32_t *qtdImplicantes, grupo* vetorGrupos, uint32_t qtdGrupos,  uint32_t qtdVariaveis);
+
+void imprimirImplicantes(implicante* vetorImplicantes, uint32_t qtdImplicantes);
 
 #endif

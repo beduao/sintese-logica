@@ -82,30 +82,53 @@ string compararStrings(string str1, string str2, uint32_t tamanho) { //o tamanho
     return novaString;
 }
 
-uint8_t existe(string elemento, string* vetorStrings, uint32_t tamanhoVetor){ //verifica se uma string existe em um vetor de strings
+uint8_t existe(string elemento, implicante* vetorImplicantes, uint32_t tamanhoVetor){ //verifica se uma string existe em um vetor de implicantes
     for(uint32_t i = 0; i < tamanhoVetor; i++){
-        if(strcmp(vetorStrings[i],elemento)==0){
+        if(strcmp(vetorImplicantes[i].expressao,elemento)==0){
             return 1; //já existe
         }
     }
     return 0; //não existe
 }
 
-void adicionarString(string** vetor, uint32_t* qtd, string nova) { //adiciona uma nova string em um vetor de strings
-    string* temp = realloc(*vetor, sizeof(string) * (*qtd + 1));
+void adicionarImplicante(implicante** vetor, uint32_t* qtd, string nova, string termo1, string termo2) { //adiciona um novo implicante em um vetor de implicantes
+    implicante* temp = realloc(*vetor, sizeof(implicante) * (*qtd + 1));
     if (temp == NULL) {
-        fprintf(stderr, "Erro ao alocar memória ao adicionar string.\n");
-        free(nova);  // evita vazamento de memória
-        return;
+        fprintf(stderr, "Erro ao alocar memória ao adicionar implicante.\n");
+        exit(1);
     }
 
     *vetor = temp;
-    (*vetor)[*qtd] = nova;
+    (*vetor)[*qtd].expressao = strdup(nova);
+
+    if(strcmp(termo1,termo2)==0){ 
+        (*vetor)[*qtd].termosCobertos = NULL;
+        }   
+    else {
+        (*vetor)[*qtd].termosCobertos = malloc(sizeof(string)*2);
+
+        (*vetor)[*qtd].termosCobertos[0] = strdup(termo1);
+        (*vetor)[*qtd].termosCobertos[1] = strdup(termo2);
+        
+    }
     (*qtd)++;
 }
 
 
-void compararGrupos(string** vetorImplicantes, uint32_t* qtdImplicantes, grupo* vetorGrupos, uint32_t qtdGrupos, uint32_t qtdVariaveis) {
+void compararGrupos(implicante** vetorImplicantes, uint32_t* qtdImplicantes, grupo* vetorGrupos, uint32_t qtdGrupos, uint32_t qtdVariaveis) {
+    //recebe um vetor de implicantes (por referência) vazio e adiciona nele os implicantes a medida que faz comparações entre os grupos
+
+    //exceções!
+    if (qtdGrupos == 0) return;
+    if (qtdGrupos == 1) { //se há apenas um grupo, todos os seus termos são implicantes
+        for (uint32_t i = 0; i < vetorGrupos[0].stringsArmazenadas; i++) {
+            string termo = vetorGrupos[0].vetorStrs[i];
+            adicionarImplicante(vetorImplicantes, qtdImplicantes, termo, termo, termo);
+        }
+        return; //encerra a função
+    }
+
+    //inicia de fato o loop
     for (uint32_t i = 0; i < qtdGrupos - 1; i++) {
 
         uint32_t tamAtual = vetorGrupos[i].stringsArmazenadas; //tamanho do vetor de strings do grupo atual(i)
@@ -118,26 +141,25 @@ void compararGrupos(string** vetorImplicantes, uint32_t* qtdImplicantes, grupo* 
         */
         uint8_t* combinadosA = calloc(tamAtual, sizeof(uint8_t));
         uint8_t* combinadosB = calloc(tamProximo, sizeof(uint8_t));
+        if (combinadosA == NULL || combinadosB == NULL) {
+            fprintf(stderr, "Erro ao alocar memória para vetores de combinação.\n");
+            exit(1);
+        }
 
         for (uint32_t j = 0; j < tamAtual; j++) {
+
             for (uint32_t k = 0; k < tamProximo; k++) {
 
                 string comparacao = compararStrings(vetorGrupos[i].vetorStrs[j], vetorGrupos[i + 1].vetorStrs[k], qtdVariaveis);
 
                 if (comparacao != NULL) {
-                    
-                    // verifica se já existe
-                    if (existe(comparacao, *vetorImplicantes, *qtdImplicantes)) {
-                        free(comparacao);
-                        continue;
+                    if (!existe(comparacao, *vetorImplicantes, *qtdImplicantes)) {
+                        adicionarImplicante(vetorImplicantes, qtdImplicantes, comparacao, vetorGrupos[i].vetorStrs[j], vetorGrupos[i + 1].vetorStrs[k]);
+                        combinadosA[j] = 1;
+                        combinadosB[k] = 1;
                     }
-
-                    // adiciona no vetor de implicantes
-                    adicionarString(vetorImplicantes, qtdImplicantes, comparacao);
-                    
-                    // marca as combinações como feitas
-                    combinadosA[j] = 1;
-                    combinadosB[k] = 1;
+                    // CORREÇÃO: libera a memória de 'comparacao' após o uso indepentende se já existe o implicante ou não
+                    free(comparacao);
                 }
             }
         }
@@ -145,35 +167,34 @@ void compararGrupos(string** vetorImplicantes, uint32_t* qtdImplicantes, grupo* 
         /*
         DETALHE: AINDA TÁ DENTRO DO PRIMEIRO FOR! 
         ou seja, ainda NÃO atualizou os grupos autal e proximo
-        aiciona os termos do grupo ATUAL que não foram combinados
+        adiciona os termos do grupo ATUAL que não foram combinados
+        Nota: se um termo não foi adicionado, o seu grupo coberto é ele mesmo, portanto, na struct ficará setado como NULL
         */
         for (uint32_t j = 0; j < tamAtual; j++) { //percorre a lista com a informação se foi combinado ou não
 
             if (combinadosA[j] == 0) {  //se achar um elemento que não foi combinado, adiciona ele
-                string termo = strdup(vetorGrupos[i].vetorStrs[j]);
-                if (termo == NULL) {
-                    fprintf(stderr, "Erro ao duplicar string.\n");
-                    continue;
-                }
-                adicionarString(vetorImplicantes, qtdImplicantes, termo);
+                string termo = vetorGrupos[i].vetorStrs[j];
+                //CORREÇÂO: não precisa do strdup, a função de adicionar já tem
+                adicionarImplicante(vetorImplicantes, qtdImplicantes, termo, termo, termo);
+                //como não foi feita nenhuma combinação com esse termo, o único termo coberto é ele mesmo
+                //por isso passa ele mesmo duas vezes, pra função adicionarImplicante setar o campo termosCobertos como NULL
             }
         }
 
-            /*
-            se for o último par de grupos, adicionar os não combinados também do grupo final, que é o proximo 
-            DETALHE: o que está nesse if só é executa uma vez no loop
-            que é quando o par de grupos corresponde ao par (penúltimo, último)
-            */
+        /*
+        se for o último par de grupos, adicionar os não combinados também do grupo final, que é o proximo 
+        DETALHE: o que está nesse if só é executa uma vez no loop
+        que é quando o par de grupos corresponde ao par (penúltimo, último)
+        */
         if (i == qtdGrupos - 2) {
             for (uint32_t k = 0; k < tamProximo; k++) { //percorre a lista com a informação se foi combinado ou não
 
                 if (combinadosB[k] == 0) {
-                    string termo = strdup(vetorGrupos[i + 1].vetorStrs[k]);
-                    if (termo == NULL) {
-                        fprintf(stderr, "Erro ao duplicar string.\n");
-                        continue;
-                    }
-                    adicionarString(vetorImplicantes, qtdImplicantes, termo);
+                    string termo = vetorGrupos[i + 1].vetorStrs[k];
+                    //CORREÇÂO: não precisa do strdup, a função de adicionar já tem
+                    adicionarImplicante(vetorImplicantes, qtdImplicantes, termo, termo, termo);
+                     //como não foi feita nenhuma combinação com esse termo, o único termo coberto é ele mesmo
+                    //por isso passa ele mesmo duas vezes, pra função adicionarImplicante setar o campo termosCobertos como NULL
                 }
             }
         }
@@ -181,4 +202,34 @@ void compararGrupos(string** vetorImplicantes, uint32_t* qtdImplicantes, grupo* 
         free(combinadosA);
         free(combinadosB);
     }
+}
+
+void imprimirImplicantes(implicante* vetorImplicantes, uint32_t qtdImplicantes) {
+    printf("--- Tabela de Implicantes ---\n");
+    
+    // Verifica se há algo para imprimir
+    if (vetorImplicantes == NULL || qtdImplicantes == 0) {
+        printf("Nenhum implicante para exibir.\n");
+        return;
+    }
+
+    // Itera sobre cada implicante no vetor
+    for (uint32_t i = 0; i < qtdImplicantes; i++) {
+        // Imprime a expressão do implicante (ex: "10-")
+        printf("%s - [", vetorImplicantes[i].expressao);
+
+        // Verifica se o implicante foi resultado de uma combinação
+        if (vetorImplicantes[i].termosCobertos != NULL) {
+            // Se sim, imprime os dois termos que ele cobre
+            printf("%s, %s", vetorImplicantes[i].termosCobertos[0], vetorImplicantes[i].termosCobertos[1]);
+        } else {
+            // Se não, ele é um implicante primo que não se combinou.
+            // Nesse caso, ele cobre a si mesmo.
+            printf("%s", vetorImplicantes[i].expressao);
+        }
+
+        // Fecha o colchete e pula para a próxima linha
+        printf("]\n");
+    }
+    printf("---------------------------\n");
 }
