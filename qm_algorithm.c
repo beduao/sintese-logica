@@ -67,7 +67,8 @@ int main(int argc, char const *argv[])
         implicante* vetorImplicantes = malloc(sizeof(string)); //vetor de implicantes
         uint32_t qtdImplicantes = 0; //vai ser atualizado pela função compararGrupos a medida que ela cria um novo implicante
         compararGrupos(&vetorImplicantes,&qtdImplicantes,grupos,qtdGrupos,numEntradas); //gera o vetor de implicantes
-
+        //DETALHE IMPORTANTE: A LÓGICA DE TERMOS COBERTOS DOS IMPLICANTES SÓ FUNCIONA PARA A PRIMEIRA RODADA DE COMPARAÇÕES!!
+        
         /*
         Seguindo a mesma lógica das outras funções, cria um vetor para armazenar os implicantes primos
         chama a função que executa os mesmos dois passos em loop, até chegar no final
