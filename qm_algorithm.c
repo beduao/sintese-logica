@@ -13,13 +13,26 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
+    /* ----------------------CRIAÇÃO DOS IMPLICANTES INICIAIS----------------------
+        Separa as linhas em que as saídas são 1 em uma lista inicial
+        Para cada nova saída 1, adiciona um novo Implicante, onde:
+        - EXPRESSAO é a linha das entradas que fazem a saída.
+        - COMBINADO diz se essa expressao resulta de uma combinação de outras duas expressões ou não. 
+            Como são os implicantes inciais, ele é inicializado como false!
+        - TERMOS COBERTOS é um vetor com os termos que a expressão do implicante cobre. 
+            Como são os implicantes inciais, o termo cobertos é a prórpia expressão do implicante!
+        - QTD TERMOS COBERTOS é o tamanho desse vetor.
+        - PROXIMO é um ponteiro para o próximo implicante da lista.
+        ---------------------------------------------------------------------------
+    */
+
     char buffer[256];
-    uint32_t numEntradas, numSaidas, qtdMintermos = 0;
-    string* mintermos = NULL; //vetor de string com as linhas em que a saida é 1
+    uint32_t numEntradas, numSaidas;
+    implicante* implicantesIniciais = NULL; //lista de implicantes com as linhas em que a saida é 1
 
     while(fgets(buffer, sizeof(buffer), input)){ //lê cada linhda do .pla
 
-        buffer[strcspn(buffer,"\n")] = 0; //remove o /n
+        buffer[strcspn(buffer,"\n")] = 0; //remove o '/n'
         if(buffer[0]=='\0') continue; //ignora linhas vazias
 
         if(buffer[0] == '.') { //adicionar .type e .ilb / .ob (se precisar)
@@ -33,74 +46,45 @@ int main(int argc, char const *argv[])
                 sscanf(buffer, "%s %s", entrada, saida);
                 
                 if(strcmp(saida,"1")==0){ //quando a saida da linha é 1
-                    string* temp = realloc(mintermos, sizeof(string) * (qtdMintermos + 1));
-                    
-                    if (temp == NULL) {//se houver falha na alocaçao temporaria
-                        free(entrada); 
-                        free(saida);    
-                        fprintf(stderr, "Erro ao alocar memória.\n");
+                    implicante* novoTermo = malloc(sizeof(implicante));
+                    if(novoTermo==NULL){
+                        perror("Erro fatal ao alocar implicantes iniciais. Programa finalizado\n");
                         return 1;
-                    } else { 
-                        mintermos = temp;
-                        mintermos[qtdMintermos] = entrada; 
-                        qtdMintermos++;
-                    
                     }
+                    
+                    novoTermo->combinado = false;
+                    novoTermo->proximo = NULL;
+                    novoTermo->termosCobertos = NULL;
+                    novoTermo->qtdTermosCobertos = 0;
+
+                    novoTermo->expressao = strdup(entrada);
+                    addVetorStr(&(novoTermo->termosCobertos), //passagem por referência, pois modifica o vetor do implicante
+                                novoTermo->expressao,
+                                &(novoTermo->qtdTermosCobertos)); //passagem por referência, pois aumenta a quantidade de termos em um
+                    addListaImplicante(&(implicantesIniciais),novoTermo);
+
                 } else free(entrada); //libera sempre que a saida for 0 (a entrada não vai ser utilizada)
 
                 free(saida); //libera anyways
             }
         }    
 
-        /*
-        Cria um vetor de grupos para armazenar as saídas por número de 1s
-        Atualizei para criar x grupos baseados em quantos mintermos tem, faz mais sentido assim. No pior caso, cada mintermo vei ter seu prórpio grupo.
-        */
-        grupo* grupos = calloc(qtdMintermos,sizeof(grupo)); //vetor com os grupos
-        uint32_t qtdGrupos = 0; //vai ser passado por referência na função de agrupar, que vai atualizar toda vez que adicionar um novo grupo
-        agrupar(mintermos,qtdMintermos,grupos,&qtdGrupos); //gera o vetor de grupos
-
-        /*
-        Cria um vetor para armazenar os implicantes iniciais da expressão
-        A partir daqui, a saída dexa de ser um vetor de grupos, e passa a ser um vetor de implicantes (não são os implicantes primos ainda)
-        */
-        implicante* vetorImplicantes = malloc(sizeof(string)); //vetor de implicantes
-        uint32_t qtdImplicantes = 0; //vai ser atualizado pela função compararGrupos a medida que ela cria um novo implicante
-        compararGrupos(&vetorImplicantes,&qtdImplicantes,grupos,qtdGrupos,numEntradas); //gera o vetor de implicantes
-        //DETALHE IMPORTANTE: A LÓGICA DE TERMOS COBERTOS DOS IMPLICANTES SÓ FUNCIONA PARA A PRIMEIRA RODADA DE COMPARAÇÕES!!
+        /*----------------------FIM DA CRIAÇÃO DOS IMPLICANTES INICIAIS----------------------*/
         
-        /*
-        Seguindo a mesma lógica das outras funções, cria um vetor para armazenar os implicantes primos
-        chama a função que executa os mesmos dois passos em loop, até chegar no final
-        */
-        //implicante* implicantesPrimos = NULL; //vetor com os implicants primos FINAIS
-        //uint32_t qtdPrimos = 0;
 
-        /* ----PROXIMOS PASSOS----
-        começar a etapa da tabela
+        /* ----------------------PROXIMOS PASSOS----------------------
+            - Implementar a lógica de agrupamento + comparação
+            - Fazer as comparações consectuivas nos implicantes iniciais
+            - Gerar os implicantes primos
+            - Começar a etapa da tabela
         */
 
-        //BATERIA DE TESTES
-        printf("Linhas com saida 1:\n");
-        printf("-----------------\n");
-        imprimirStrings(mintermos, qtdMintermos);
-        printf("-----------------\n");
-
- 
-        imprimirGrupos(grupos,qtdGrupos);
-        printf("-----------------\n");
+        /*----------------------BATERIA DE TESTES----------------------*/
+        imprimirImplicantes(implicantesIniciais);
 
 
-        imprimirImplicantes(vetorImplicantes,qtdImplicantes);
-
-
-
-
-        //LIBERAR MEMORIA ALOCADA
-        for (uint32_t j = 0; j < qtdMintermos; j++) {
-             free(mintermos[j]);
-        }
-        free(mintermos);
+       /*----------------------LIBERAÇÃO DE MEMÓRIA----------------------*/
+       
 
         fclose(input);
 
