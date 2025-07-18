@@ -17,9 +17,9 @@ int main(int argc, char const *argv[])
         Separa as linhas em que as saídas são 1 em uma lista inicial
         Para cada nova saída 1, adiciona um novo Implicante, onde:
         - EXPRESSAO é a linha das entradas que fazem a saída.
-        - COMBINADO diz se essa expressao resulta de uma combinação de outras duas expressões ou não. 
+        - COMBINADO diz se essa expressao resulta de uma combinação de outras duas expressões ou não.
             Como são os implicantes inciais, ele é inicializado como false!
-        - TERMOS COBERTOS é um vetor com os termos que a expressão do implicante cobre. 
+        - TERMOS COBERTOS é um vetor com os termos que a expressão do implicante cobre.
             Como são os implicantes inciais, o termo cobertos é a prórpia expressão do implicante!
         - QTD TERMOS COBERTOS é o tamanho desse vetor.
         - PROXIMO é um ponteiro para o próximo implicante da lista.
@@ -28,7 +28,8 @@ int main(int argc, char const *argv[])
 
     char buffer[256];
     uint32_t numEntradas, numSaidas;
-    implicante* implicantesIniciais = NULL; //lista de implicantes com as linhas em que a saida é 1
+    implicanteorg* implicantesIniciais = NULL; //lista de implicantes com as linhas em que a saida é 1 (alterado para para o tempo o(1)
+
 
     while(fgets(buffer, sizeof(buffer), input)){ //lê cada linhda do .pla
 
@@ -42,16 +43,16 @@ int main(int argc, char const *argv[])
         }
         else {
                 string entrada = malloc((numEntradas + 1)*sizeof(char));
-                string saida = malloc((numSaidas + 1)*sizeof(char)); 
+                string saida = malloc((numSaidas + 1)*sizeof(char));
                 sscanf(buffer, "%s %s", entrada, saida);
-                
+
                 if(strcmp(saida,"1")==0){ //quando a saida da linha é 1
                     implicante* novoTermo = malloc(sizeof(implicante));
                     if(novoTermo==NULL){
                         perror("Erro fatal ao alocar implicantes iniciais. Programa finalizado\n");
                         return 1;
                     }
-                    
+
                     novoTermo->combinado = false;
                     novoTermo->proximo = NULL;
                     novoTermo->termosCobertos = NULL;
@@ -67,10 +68,10 @@ int main(int argc, char const *argv[])
 
                 free(saida); //libera anyways
             }
-        }    
+        }
 
         /*----------------------FIM DA CRIAÇÃO DOS IMPLICANTES INICIAIS----------------------*/
-        
+
 
         /* ----------------------PROXIMOS PASSOS----------------------
             - Implementar a lógica de agrupamento + comparação
@@ -84,7 +85,7 @@ int main(int argc, char const *argv[])
 
 
        /*----------------------LIBERAÇÃO DE MEMÓRIA----------------------*/
-       
+
 
         fclose(input);
 

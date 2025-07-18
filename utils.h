@@ -16,10 +16,16 @@ typedef char* string;
 typedef struct implicante {
     string expressao;
     bool combinado;
-    string* termosCobertos; 
+    string* termosCobertos;
     uint32_t qtdTermosCobertos;
     struct implicante* proximo;
 } implicante;
+//novo struct para organizar
+typedef struct implicanteorg {
+ implicante* inicio;
+ implicante* fim;
+ uint32_t tamanho;
+} implicanteorg;
 
 typedef struct grupo {
     implicante* listaImplicantes;
@@ -47,7 +53,7 @@ bool existe(implicante* lista, string elemento);
 void addVetorStr(string** vetor, string novaString, uint32_t* tamanhoVetor);
 //adiciona um elemento ao vetor de termos cobertos de um implicante (por enquanto ela só é utilizada pra isso na main)
 
-void addListaImplicante(implicante** lista, implicante* novoImplicante);
+void addListaImplicante(implicanteorg* lista, implicante* novoImplicante);
 //adiciona um implicante a uma lista de implicantes
 
 #endif

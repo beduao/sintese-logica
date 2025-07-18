@@ -1,7 +1,7 @@
 #include "utils.h"
 
 /*-----------IMPRESSÃO-----------*/
-void imprimirImplicantes(implicante* lista) { 
+void imprimirImplicantes(implicante* lista) {
     implicante* aux = lista;
     while(aux!=NULL){
         printf("%s\n",aux->expressao);
@@ -36,7 +36,7 @@ string compararStrings(string str1, string str2, uint32_t tamanho) {
             else novaString[j] = '-';
         }
         novaString[tamanho] = '\0';
-    } 
+    }
     return novaString;
 }
 
@@ -63,14 +63,21 @@ void addVetorStr(string** vetor, string novaString, uint32_t* tamanhoVetor){
         (*tamanhoVetor)++;
     }
 }
-
-void addListaImplicante(implicante** lista, implicante* novoImplicante){
-    if(*lista==NULL){
-        *lista = novoImplicante;
+//alterado para tempo o(1)
+void addListaImplicante(implicanteorg* lista, implicante* novoImplicante){
+    novoImplicante->proximo = NULL;
+    //caso a lista de implicantes organizados seja vazia
+    if(lista->inicio==NULL){
+        lista->inicio = novoImplicante;
+        lista->fim = novoImplicante;
+         lista->tamanho ++;
         return;
     }
-    implicante* aux = *lista;
-    while(aux->proximo!=NULL) aux = aux->proximo;
-    aux->proximo = novoImplicante;
+    //caso nao o proximo do ultimo implicante recebe o novo implicante e depois torna o novo implicante o ultimo
+    else{
+        lista->fim->proximo = novoImplicante;
+        lista->fim = novoImplicante;
+    }
+    lista->tamanho ++;
 }
 
