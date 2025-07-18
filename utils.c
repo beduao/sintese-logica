@@ -63,21 +63,23 @@ void addVetorStr(string** vetor, string novaString, uint32_t* tamanhoVetor){
         (*tamanhoVetor)++;
     }
 }
+
 //alterado para tempo o(1)
-void addListaImplicante(implicanteorg* lista, implicante* novoImplicante){
+void addImplicante(stack** implicantes, implicante* novoImplicante) {
+    if (*implicantes == NULL) {
+        *implicantes = malloc(sizeof(stack));
+        (*implicantes)->inicio = NULL;
+        (*implicantes)->fim = NULL;
+    }
+
     novoImplicante->proximo = NULL;
-    //caso a lista de implicantes organizados seja vazia
-    if(lista->inicio==NULL){
-        lista->inicio = novoImplicante;
-        lista->fim = novoImplicante;
-         lista->tamanho ++;
-        return;
+
+    if ((*implicantes)->fim == NULL) {
+        (*implicantes)->inicio = novoImplicante;
+        (*implicantes)->fim = novoImplicante;
+    } else {
+        (*implicantes)->fim->proximo = novoImplicante;
+        (*implicantes)->fim = novoImplicante;
     }
-    //caso nao o proximo do ultimo implicante recebe o novo implicante e depois torna o novo implicante o ultimo
-    else{
-        lista->fim->proximo = novoImplicante;
-        lista->fim = novoImplicante;
-    }
-    lista->tamanho ++;
 }
 

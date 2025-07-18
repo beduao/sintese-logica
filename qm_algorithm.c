@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
 
     char buffer[256];
     uint32_t numEntradas, numSaidas;
-    implicanteorg* implicantesIniciais = NULL; //lista de implicantes com as linhas em que a saida é 1 (alterado para para o tempo o(1)
+    stack* implicantesIniciais = NULL; //pilha de implicantes com as linhas em que a saida é 1 (alterado para para o tempo de inserção ser o(1)
 
 
     while(fgets(buffer, sizeof(buffer), input)){ //lê cada linhda do .pla
@@ -61,8 +61,9 @@ int main(int argc, char const *argv[])
                     novoTermo->expressao = strdup(entrada);
                     addVetorStr(&(novoTermo->termosCobertos), //passagem por referência, pois modifica o vetor do implicante
                                 novoTermo->expressao,
-                                &(novoTermo->qtdTermosCobertos)); //passagem por referência, pois aumenta a quantidade de termos em um
-                    addListaImplicante(&(implicantesIniciais),novoTermo);
+                                &(novoTermo->qtdTermosCobertos)); //passagem por referência, pois aumenta a quantidade de termos cobertos em um
+
+                    addImplicante(&(implicantesIniciais),novoTermo); //adiciona o novo implicante alocado na pilha
 
                 } else free(entrada); //libera sempre que a saida for 0 (a entrada não vai ser utilizada)
 
@@ -81,7 +82,7 @@ int main(int argc, char const *argv[])
         */
 
         /*----------------------BATERIA DE TESTES----------------------*/
-        imprimirImplicantes(implicantesIniciais);
+        imprimirImplicantes(implicantesIniciais->inicio);
 
 
        /*----------------------LIBERAÇÃO DE MEMÓRIA----------------------*/
