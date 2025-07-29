@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
 
     char buffer[256];
     uint32_t numEntradas, numSaidas;
-    stack* implicantesIniciais = NULL; //pilha de implicantes com as linhas em que a saida é 1 (alterado para para o tempo de inserção ser o(1)
+    fila* implicantesIniciais = NULL; //fila de implicantes com as linhas em que a saida é 1 (alterado para para o tempo de inserção ser o(1)
 
 
     while(fgets(buffer, sizeof(buffer), input)){ //lê cada linhda do .pla
@@ -63,7 +63,7 @@ int main(int argc, char const *argv[])
                                 novoTermo->expressao,
                                 &(novoTermo->qtdTermosCobertos)); //passagem por referência, pois aumenta a quantidade de termos cobertos em um
 
-                    addImplicante(&(implicantesIniciais),novoTermo); //adiciona o novo implicante alocado na pilha
+                    add_na_fila(&(implicantesIniciais),novoTermo); //adiciona o novo implicante alocado na fila
 
                 } else free(entrada); //libera sempre que a saida for 0 (a entrada não vai ser utilizada)
 
@@ -73,6 +73,46 @@ int main(int argc, char const *argv[])
 
         /*----------------------FIM DA CRIAÇÃO DOS IMPLICANTES INICIAIS----------------------*/
 
+        printf("----------\nFila original:\n");
+        imprimirFila(implicantesIniciais); //imprime a fila inicial antes dela ser esvaziada na criação de grupos
+
+
+        /*----------------------AGRUPAMENTO POR NÚMERO DE UNS----------------------*/
+        
+        grupo* vetorGrupos = NULL; //vetor de grupos
+        uint32_t qtdGrupos = 0; //números de grupos criados
+
+        //percorre todo a fila de implicantes
+        while (implicantesIniciais->inicio != NULL) {
+            //vai percorrendo a fila e movendo os implicantes para os grupos
+            implicante* atual = implicantesIniciais->inicio; //percorre a fila pelo início
+            implicantesIniciais->inicio = atual->proximo; //o pirmeiro a entrar é o primeiro a sair
+
+            atual->proximo = NULL; // limpar vínculo anterior
+
+            uint32_t uns = contarUns(atual->expressao);
+
+            bool grupoEncontrado = false;
+
+            for (uint32_t i = 0; i < qtdGrupos; i++) {
+                if (vetorGrupos[i].qtdUns == uns) {
+                    add_na_fila(&(vetorGrupos[i].filaImplicantes), atual);
+                    grupoEncontrado = true;
+                    break;
+                }
+            }
+
+            if (!grupoEncontrado) {
+                vetorGrupos = realloc(vetorGrupos, sizeof(grupo) * (qtdGrupos + 1));
+                vetorGrupos[qtdGrupos].qtdUns = uns;
+                vetorGrupos[qtdGrupos].filaImplicantes = NULL;
+                add_na_fila(&(vetorGrupos[qtdGrupos].filaImplicantes), atual);
+                qtdGrupos++;
+            }
+        }
+
+        printf("-----------\n\n");
+        imprimirGrupos(vetorGrupos,qtdGrupos);
 
         /* ----------------------PROXIMOS PASSOS----------------------
             - Implementar a lógica de agrupamento + comparação
@@ -80,10 +120,6 @@ int main(int argc, char const *argv[])
             - Gerar os implicantes primos
             - Começar a etapa da tabela
         */
-
-        /*----------------------BATERIA DE TESTES----------------------*/
-        imprimirImplicantes(implicantesIniciais->inicio);
-
 
        /*----------------------LIBERAÇÃO DE MEMÓRIA----------------------*/
 

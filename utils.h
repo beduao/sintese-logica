@@ -22,13 +22,13 @@ typedef struct implicante {
 } implicante;
 
 //novo struct para organizar
-typedef struct stack {
+typedef struct fila {
     implicante* inicio;
     implicante* fim;
-} stack;
+} fila;
 
 typedef struct grupo {
-    implicante* listaImplicantes;
+    fila* filaImplicantes;
     uint32_t qtdUns;
 } grupo;
 
@@ -36,24 +36,32 @@ typedef struct grupo {
 /*----------------------PROTÓTIPOS DE FUNÇÕES----------------------*/
 
 /*-----------IMPRESSÃO-----------*/
-void imprimirImplicantes(implicante* lista);
+
+void imprimirFila(fila* f);
+
+void imprimirGrupos(grupo* vetorGrupos, uint32_t tamanho);
 
 /*-----------LÓGICA-----------*/
-uint32_t contarUns(string linha);
-//conta quantos 1s tem em uma expressão (oara fazer os agrupamentos por número de 1s)
 
-string compararStrings(string str1, string str2, uint32_t tamanho);
+//conta quantos 1s tem em uma expressão (oara fazer os agrupamentos por número de 1s)
+uint32_t contarUns(string linha);
+
+
 //compara duas expressões e retorna NULL se elas diferem em mais de 1 bit
 //e retorna a nova expressão se elas diferem em apenas 1 bit
+string compararStrings(string str1, string str2, uint32_t tamanho);
 
-bool existe(implicante* lista, string elemento);
+
 //verifica se uma string existe em uma lista de implicantes
+bool existe(implicante* lista, string elemento);
+
 
 /*-----------INSERÇÃO-----------*/
-void addVetorStr(string** vetor, string novaString, uint32_t* tamanhoVetor);
-//adiciona um elemento ao vetor de termos cobertos de um implicante (por enquanto ela só é utilizada pra isso na main)
 
-void addImplicante(stack** implicantes, implicante* novoImplicante);
-//adiciona um implicante a uma lista de implicantes
+//adiciona um elemento ao vetor de termos cobertos de um implicante (por enquanto ela só é utilizada pra isso na main)
+void addVetorStr(string** vetor, string novaString, uint32_t* tamanhoVetor);
+
+//adiciona um implicante ao final de uma fila de implicantes
+void add_na_fila(fila** implicantes, implicante* novoImplicante);
 
 #endif

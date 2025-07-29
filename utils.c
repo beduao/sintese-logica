@@ -1,11 +1,19 @@
 #include "utils.h"
 
 /*-----------IMPRESSÃO-----------*/
-void imprimirImplicantes(implicante* lista) {
-    implicante* aux = lista;
-    while(aux!=NULL){
-        printf("%s\n",aux->expressao);
+void imprimirFila(fila* f) {
+    implicante* aux = f->inicio;
+    while (aux != NULL) {
+        printf("%s\n", aux->expressao);
         aux = aux->proximo;
+    }
+}
+
+void imprimirGrupos(grupo* vetorGrupos, uint32_t tamanho){
+    for(uint32_t i = 0; i < tamanho; i++){
+        printf("Grupo %u: (numero de uns = %u)\n", i, vetorGrupos[i].qtdUns);
+        imprimirFila(vetorGrupos[i].filaImplicantes);
+        printf("\n");
     }
 }
 
@@ -65,9 +73,9 @@ void addVetorStr(string** vetor, string novaString, uint32_t* tamanhoVetor){
 }
 
 //alterado para tempo o(1)
-void addImplicante(stack** implicantes, implicante* novoImplicante) {
+void add_na_fila(fila** implicantes, implicante* novoImplicante) {
     if (*implicantes == NULL) {
-        *implicantes = malloc(sizeof(stack));
+        *implicantes = malloc(sizeof(fila));
         (*implicantes)->inicio = NULL;
         (*implicantes)->fim = NULL;
     }
@@ -82,4 +90,3 @@ void addImplicante(stack** implicantes, implicante* novoImplicante) {
         (*implicantes)->fim = novoImplicante;
     }
 }
-
