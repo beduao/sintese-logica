@@ -17,6 +17,33 @@ void imprimirGrupos(grupo* vetorGrupos, uint32_t tamanho){
     }
 }
 
+void imprimirTabela(uint8_t** tabela, fila* primos, fila* mintermos, uint32_t qtdPrimos, uint32_t qtdMintermos) {
+    printf("\nTabela de Cobertura (Implicantes Primos x Implicantes Originais):\n");
+
+    // cabeçalho das colunas
+    printf("            "); // espaço para o nome do implicante
+    implicante* m = mintermos->inicio;
+    while (m != NULL) {
+        printf("%s ", m->expressao);
+        m = m->proximo;
+    }
+    printf("\n");
+
+    // corpo da tabela
+    implicante* p = primos->inicio;
+    for (uint32_t i = 0; i < qtdPrimos; i++) {
+        printf("%-10s ", p->expressao);
+        for (uint32_t j = 0; j < qtdMintermos; j++) {
+            printf("   %d", tabela[i][j]);
+        }
+        printf("\n");
+        p = p->proximo;
+    }
+
+    printf("\n");
+}
+
+
 /*-----------LÓGICAS-----------*/
 uint32_t contarUns(string linha) {
     uint32_t contagem = 0;
@@ -89,4 +116,30 @@ void add_na_fila(fila** implicantes, implicante* novoImplicante) {
         (*implicantes)->fim->proximo = novoImplicante;
         (*implicantes)->fim = novoImplicante;
     }
+}
+
+/*-----------CRIAÇÃO-----------*/
+
+implicante* copiar_implicante(implicante* original) {
+    implicante* novo = malloc(sizeof(implicante));
+    if (!novo) {
+        perror("Erro ao copiar implicante");
+        exit(1);
+    }
+
+    novo->expressao = strdup(original->expressao);
+    novo->combinado = original->combinado;
+    novo->qtdTermosCobertos = original->qtdTermosCobertos;
+    novo->proximo = NULL;
+
+    if (original->qtdTermosCobertos > 0) {
+        novo->termosCobertos = malloc(sizeof(string) * original->qtdTermosCobertos);
+        for (uint32_t i = 0; i < original->qtdTermosCobertos; i++) {
+            novo->termosCobertos[i] = strdup(original->termosCobertos[i]);
+        }
+    } else {
+        novo->termosCobertos = NULL;
+    }
+
+    return novo;
 }

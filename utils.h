@@ -41,6 +41,9 @@ void imprimirFila(fila* f);
 
 void imprimirGrupos(grupo* vetorGrupos, uint32_t tamanho);
 
+void imprimirTabela(uint8_t** tabela, fila* primos, fila* mintermos, uint32_t qtdPrimos, uint32_t qtdMintermos);
+
+
 /*-----------LÓGICA-----------*/
 
 //conta quantos 1s tem em uma expressão (oara fazer os agrupamentos por número de 1s)
@@ -63,5 +66,9 @@ void addVetorStr(string** vetor, string novaString, uint32_t* tamanhoVetor);
 
 //adiciona um implicante ao final de uma fila de implicantes
 void add_na_fila(fila** implicantes, implicante* novoImplicante);
+
+/*-----------CRIAÇÃO-----------*/
+
+implicante* copiar_implicante(implicante* original);
 
 #endif
