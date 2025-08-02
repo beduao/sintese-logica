@@ -58,6 +58,8 @@ string compararStrings(string str1, string str2, uint32_t tamanho);
 //verifica se uma string existe em uma lista de implicantes
 bool existe(implicante* lista, string elemento);
 
+//verifica se uma string existe em vetor de termos cobertos
+bool existe_no_vetor(string* vetor, uint32_t tamanhoVetor, string elemento);
 
 /*-----------INSERÇÃO-----------*/
 
@@ -70,5 +72,9 @@ void add_na_fila(fila** implicantes, implicante* novoImplicante);
 /*-----------CRIAÇÃO-----------*/
 
 implicante* copiar_implicante(implicante* original);
+
+
+
+void liberar_implicante(implicante* imp);
 
 #endif

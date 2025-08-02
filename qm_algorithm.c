@@ -146,7 +146,8 @@ int main(int argc, char const *argv[])
                             } //primeiro adiciona os termos do primeiro implicante
 
                             for (uint32_t t = 0; t < impB->qtdTermosCobertos; t++) {
-                                if (!existe(novo, impB->termosCobertos[t])) {
+                                // CORRIGIDO: usa a nova função para buscar no vetor de strings
+                                if (!existe_no_vetor(novo->termosCobertos, novo->qtdTermosCobertos, impB->termosCobertos[t])) {
                                     addVetorStr(&novo->termosCobertos, impB->termosCobertos[t], &novo->qtdTermosCobertos);
                                 }
                             } //depois do segundo implicante
@@ -163,8 +164,15 @@ int main(int argc, char const *argv[])
                             bool grupoExiste = false;
                             for (uint32_t g = 0; g < novaQtdGrupos; g++) {
                                 if (novoVetorGrupos[g].qtdUns == uns) {
-                                    add_na_fila(&(novoVetorGrupos[g].filaImplicantes), novo);
-                                    grupoExiste = true;
+                                    grupoExiste = true; // Encontrou o grupo correto
+                                    
+                                    // VERIFICA SE O IMPLICANTE JÁ EXISTE NA FILA DESTE GRUPO
+                                    if (!existe(novoVetorGrupos[g].filaImplicantes->inicio, novo->expressao)) {
+                                        add_na_fila(&(novoVetorGrupos[g].filaImplicantes), novo);
+                                    } else {
+                                        // e já existe, é uma combinação duplicado.
+                                        liberar_implicante(novo);
+                                    }
                                     break;
                                 }
                             }
@@ -230,7 +238,7 @@ int main(int argc, char const *argv[])
         }
 
         implicante* linha = primos->inicio;
-        for (uint32_t i = 0; i < qtdPrimos; i++) { //percorre todo os implicants primos
+        for (uint32_t i = 0; i < qtdPrimos; i++) { //percorre todo os implicantes primos
 
             implicante* coluna = implicantesIniciais->inicio;
             for (uint32_t j = 0; j < qtdImplicantes; j++) { //percorre todos os implicantes originais
@@ -251,6 +259,11 @@ int main(int argc, char const *argv[])
 
         imprimirTabela(tabela, primos, implicantesIniciais, qtdPrimos, qtdImplicantes);
 
+        /*----------------------SELECIONAR OS IMPLICANTES ESSENCIAIS----------------------*/
+
+        
+
+        /*----------------------IMPLICANTES ESSENCIAIS SELECIONADOS----------------------*/
 
 
        /*----------------------LIBERAÇÃO DE MEMÓRIA----------------------*/

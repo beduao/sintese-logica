@@ -18,26 +18,26 @@ void imprimirGrupos(grupo* vetorGrupos, uint32_t tamanho){
 }
 
 void imprimirTabela(uint8_t** tabela, fila* primos, fila* mintermos, uint32_t qtdPrimos, uint32_t qtdMintermos) {
-    printf("\nTabela de Cobertura (Implicantes Primos x Implicantes Originais):\n");
+    printf("\nTabela de Cobertura (Implicantes Originais x Implicantes Primos):\n");
 
     // cabeçalho das colunas
     printf("            "); // espaço para o nome do implicante
-    implicante* m = mintermos->inicio;
-    while (m != NULL) {
-        printf("%s ", m->expressao);
-        m = m->proximo;
+    implicante* p = primos->inicio;
+    while (p != NULL) {
+        printf("%-10s ", p->expressao);
+        p = p->proximo;
     }
     printf("\n");
 
     // corpo da tabela
-    implicante* p = primos->inicio;
-    for (uint32_t i = 0; i < qtdPrimos; i++) {
-        printf("%-10s ", p->expressao);
-        for (uint32_t j = 0; j < qtdMintermos; j++) {
-            printf("   %d", tabela[i][j]);
+    implicante* m = mintermos->inicio;
+    for (uint32_t i = 0; i < qtdMintermos; i++) {
+        printf("%-10s ", m->expressao);
+        for (uint32_t j = 0; j < qtdPrimos; j++) {
+            printf("   %d      ", tabela[j][i]);
         }
         printf("\n");
-        p = p->proximo;
+        m = m->proximo;
     }
 
     printf("\n");
@@ -82,6 +82,15 @@ bool existe(implicante* lista, string elemento){
         aux = aux->proximo;
     }
     return false; //não existe
+}
+
+bool existe_no_vetor(string* vetor, uint32_t tamanhoVetor, string elemento) {
+    for (uint32_t i = 0; i < tamanhoVetor; i++) {
+        if (strcmp(vetor[i], elemento) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /*-----------INSERÇÃO-----------*/
@@ -142,4 +151,16 @@ implicante* copiar_implicante(implicante* original) {
     }
 
     return novo;
+}
+
+
+void liberar_implicante(implicante* imp) {
+    if (imp == NULL) return;
+
+    free(imp->expressao);
+    for (uint32_t i = 0; i < imp->qtdTermosCobertos; i++) {
+        free(imp->termosCobertos[i]);
+    }
+    free(imp->termosCobertos);
+    free(imp);
 }
