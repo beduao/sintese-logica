@@ -2,23 +2,28 @@
 
 /*-----------IMPRESSÃO-----------*/
 void imprimirFila(fila* f) {
+    printf("---------------------------\n");
     implicante* aux = f->inicio;
     while (aux != NULL) {
         printf("%s\n", aux->expressao);
         aux = aux->proximo;
     }
+    printf("---------------------------\n");
 }
 
 void imprimirGrupos(grupo* vetorGrupos, uint32_t tamanho){
+    printf("\n|------------Grupos formados:------------|\n\n");
     for(uint32_t i = 0; i < tamanho; i++){
         printf("Grupo %u: (numero de uns = %u)\n", i, vetorGrupos[i].qtdUns);
         imprimirFila(vetorGrupos[i].filaImplicantes);
         printf("\n");
     }
+    printf("\n");
 }
 
 void imprimirTabela(uint8_t** tabela, fila* primos, fila* mintermos, uint32_t qtdPrimos, uint32_t qtdMintermos) {
-    printf("\nTabela de Cobertura (Implicantes Originais x Implicantes Primos):\n");
+    printf("\n-----------------------------------------------------------------------");
+    printf("\nImplicantes Originais x Implicantes Primos:\n");
 
     // cabeçalho das colunas
     printf("            "); // espaço para o nome do implicante
@@ -39,8 +44,8 @@ void imprimirTabela(uint8_t** tabela, fila* primos, fila* mintermos, uint32_t qt
         printf("\n");
         m = m->proximo;
     }
+    printf("-----------------------------------------------------------------------\n");
 
-    printf("\n");
 }
 
 void printarFinal(fila* primos, uint32_t qtdPrimos, bool* implicante_selecionado){

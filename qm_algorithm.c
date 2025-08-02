@@ -61,9 +61,9 @@ int main(int argc, char const *argv[])
             }
         }
 
-        printf("------------------\nImplicantes originais:\n");
-        imprimirFila(implicantesIniciais);    
-        printf("------------------\n");
+        // printf("\nImplicantes originais:\n");
+        // imprimirFila(implicantesIniciais);    
+        
 
         /*----------------------FIM DA LEITURA DOS IMPLICANTES INICIAIS----------------------*/
 
@@ -99,7 +99,7 @@ int main(int argc, char const *argv[])
             atual = atual->proximo;
         }
 
-        imprimirGrupos(vetorGrupos,qtdGrupos);
+        // imprimirGrupos(vetorGrupos,qtdGrupos);
 
         /*----------------------FIM DO AGRUPAMENTO INICIAL----------------------*/
 
@@ -225,9 +225,9 @@ int main(int argc, char const *argv[])
 
         } while (houveCombinacao);
 
-        printf("------------------\nImplicantes Primos:\n");
-        imprimirFila(primos);    
-        printf("------------------\n");
+        // printf("Implicantes primos finais:\n");
+        // imprimirFila(primos);    
+
 
         /*----------------------FIM DO LOOP DE REAGRUPAMENTO----------------------*/
         
@@ -258,15 +258,15 @@ int main(int argc, char const *argv[])
             linha = linha->proximo;
         }
 
-        imprimirTabela(tabela, primos, implicantesIniciais, qtdPrimos, qtdImplicantes);
+        //imprimirTabela(tabela, primos, implicantesIniciais, qtdPrimos, qtdImplicantes);
 
         /*----------------------FIM DA CRIAÇÃO DA MATRIZ----------------------*/
 
         
         /*----------------------SELECIONAR OS IMPLICANTES ESSENCIAIS----------------------*/
 
-        bool* termosOriginais = calloc(qtdImplicantes, sizeof(bool)); //seria referente ao cabçalho das linhas 
-        //vetor binário que contém a informação dos implicantes iniciais, indica se um implicante já foi coberto ou não
+        bool* termosCobertos = calloc(qtdImplicantes, sizeof(bool)); //seria referente ao cabçalho das linhas 
+        //vetor binário que contém a informação dos implicantes iniciais, quais implicantes foram cobertos ou não
         
 
         bool* primosSelecionados = calloc(qtdPrimos, sizeof(bool)); //seria referente ao cabçalho das colunas
@@ -277,28 +277,75 @@ int main(int argc, char const *argv[])
             uint32_t count = 0; //quantidade de termos que cobrem a expressão original
             uint32_t ultimo = -1; //guarda o índice do último implicante que cobre esse mintermo
             for (uint32_t i = 0; i < qtdPrimos; i++) { //percore todas as linhas (i) daquela coluna (j)
-                if (tabela[i][j] == 1) {
+                if (tabela[i][j] == 1) { //é um termo coberto pelo implicante
                     count++;
                     ultimo = i;
                 }
-        }
+            }
         
             if (count == 1) { //se apenas um implicante primo cobre aquele termo, ele é essencial
                 primosSelecionados[ultimo] = true;// marca esse implicante primo como essencial
                 for (uint32_t k = 0; k < qtdImplicantes; k++) { //daí, percorre a tabela na coluna desse implicante primo, linha a linha
-                    if (tabela[ultimo][k] == 1) { //tabela[ultimo][k] é a coluna do implicante primo primos[ultimo]
-                        termosOriginais[k] = true; //seta todos os termos que esse primo cobria como cobertos no vetor binário das expressões originais 
+                    if (tabela[ultimo][k] == 1) { //tabela[ultimo][k] é a coluna do implicante primo
+                        termosCobertos[k] = true; //seta todos os termos que esse primo cobria como cobertos no vetor binário das expressões originais 
                     }
                 }
             }
         }
 
-        //implementar a cobertura para primos NÃO ESSENCIAIS (que cobre mais que um termo original)
-        //enquanto existirem termos originais não cobertos, continuar o processo
-
         /*----------------------IMPLICANTES ESSENCIAIS SELECIONADOS----------------------*/
 
+        
+        /*----------------------SELECIONAR O RESTO DOS IMPLICANTES----------------------*/
 
+        while(true){ //loop infinito ate todos os termos originais serem cobertos
+
+            bool todosCobertos = true;
+            for (uint32_t j = 0; j < qtdImplicantes; j++) {
+                if (termosCobertos[j] == 0) {
+                    todosCobertos = false;
+                    break;
+                }
+            }
+            if (todosCobertos) break; //se todos os termos ja foram cobertos, sai do loop, senão continua para achar o resto dos implicantes 
+
+            /*----------ALGORITMO GULOSO PARA A SELEÇÃO DOS TERMOS QUE AINDA MÃO FORAM COMBINADOS----------*/
+            uint32_t melhor = -1;
+            uint32_t maxCobertos = 0;
+
+            for (uint32_t i = 0; i < qtdPrimos; i++) { //percorre o vetor binário dos implicantes primos para achar um que ainda não foi selecionado
+                if (primosSelecionados[i]) continue; //se ja foi selecionado, passa pra o proximo
+
+                uint32_t cobertos = 0; //se ainda nao foi selecionado, conta quantos termos esse primo cobre
+
+                for (uint32_t j = 0; j < qtdImplicantes; j++) { 
+                    if (!termosCobertos[j] && tabela[i][j] == 1) { //seleciona os termos orginais que ainda nao foram cobertos E que esse primo cobre
+                        cobertos++;
+                    }
+                }
+                if (cobertos > maxCobertos) { //se essse é o termo que mais cobre termos não cobertos, guarda esse termo como o melhor
+                    melhor = i;
+                    maxCobertos = cobertos;
+                }
+            }
+
+            if (melhor != -1) { //se existe um primo que ainda não foi selecionado
+
+                primosSelecionados[melhor] = true; //marca esse primo como selecionado
+                for (uint32_t j = 0; j < qtdImplicantes; j++) { //marca os termos que esse primo cobre como cobertos
+                    if (tabela[melhor][j] == 1) {
+                        termosCobertos[j] = true;
+                    }
+                }
+
+            } else break; //senão existe primos a serem selecionados, sai do loop
+
+        }
+
+        /*----------------------FIM DA SELEÇÃO DOS IMPLICANTES----------------------*/
+
+        //printa os implicantes primos que foram slecionaods, e suas devidas expressões
+        printarFinal(primos,qtdPrimos,primosSelecionados);
 
 
         fclose(input);
