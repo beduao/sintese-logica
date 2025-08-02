@@ -43,6 +43,8 @@ void imprimirGrupos(grupo* vetorGrupos, uint32_t tamanho);
 
 void imprimirTabela(uint8_t** tabela, fila* primos, fila* mintermos, uint32_t qtdPrimos, uint32_t qtdMintermos);
 
+void printarFinal(fila* primos, uint32_t qtdPrimos, bool* implicante_selecionado);
+
 
 /*-----------LÓGICA-----------*/
 
@@ -74,6 +76,7 @@ void add_na_fila(fila** implicantes, implicante* novoImplicante);
 implicante* copiar_implicante(implicante* original);
 
 
+/*-----------LIBERAÇÃO-----------*/
 
 void liberar_implicante(implicante* imp);
 

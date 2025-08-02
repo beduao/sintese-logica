@@ -43,6 +43,36 @@ void imprimirTabela(uint8_t** tabela, fila* primos, fila* mintermos, uint32_t qt
     printf("\n");
 }
 
+void printarFinal(fila* primos, uint32_t qtdPrimos, bool* implicante_selecionado){
+    implicante* p = primos->inicio;
+
+    uint32_t primeiro_implicante = true;
+
+    for (uint32_t i = 0; i < qtdPrimos; i++) {
+        if (implicante_selecionado[i]) {
+            
+            if (!primeiro_implicante) printf(" + ");
+            
+            string exp = p->expressao;
+            uint32_t x = 0;
+
+            while(exp[x] != '\0'){
+                if(exp[x] == '1') {
+                    printf("v%u", x);
+                }
+                else if(exp[x] == '0') {
+                    printf("~v%u", x);
+                }
+                x++;
+            }
+            
+            primeiro_implicante = false;
+        }
+        p = p->proximo;
+    }
+    printf("\n");
+}
+
 
 /*-----------LÓGICAS-----------*/
 uint32_t contarUns(string linha) {
@@ -153,6 +183,7 @@ implicante* copiar_implicante(implicante* original) {
     return novo;
 }
 
+/*-----------LIBERAÇÃO-----------*/
 
 void liberar_implicante(implicante* imp) {
     if (imp == NULL) return;

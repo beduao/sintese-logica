@@ -14,7 +14,6 @@ int main(int argc, char const *argv[])
     }
 
     /*----------------------LEITURA DOS IMPLICANTES INICIAIS----------------------*/ 
-       
 
     char buffer[256];
     uint32_t numEntradas, numSaidas;
@@ -62,11 +61,12 @@ int main(int argc, char const *argv[])
             }
         }
 
-        /*----------------------FIM DA LEITURA DOS IMPLICANTES INICIAIS----------------------*/
-
         printf("------------------\nImplicantes originais:\n");
         imprimirFila(implicantesIniciais);    
         printf("------------------\n");
+
+        /*----------------------FIM DA LEITURA DOS IMPLICANTES INICIAIS----------------------*/
+
 
         /*----------------------AGRUPAMENTO POR NÚMERO DE UNS----------------------*/
         
@@ -99,9 +99,10 @@ int main(int argc, char const *argv[])
             atual = atual->proximo;
         }
 
+        imprimirGrupos(vetorGrupos,qtdGrupos);
+
         /*----------------------FIM DO AGRUPAMENTO INICIAL----------------------*/
 
-        imprimirGrupos(vetorGrupos,qtdGrupos);
         
         /*----------------------LOOP DE COMBINAÇÃO E REAGRUPAMENTO----------------------*/
 
@@ -109,7 +110,8 @@ int main(int argc, char const *argv[])
         uint32_t qtdPrimos = 0;
         bool houveCombinacao;
 
-        do {
+        do { //loop infinito que só para quando não são feitas mais combinações entre os grupos
+
             houveCombinacao = false;
 
             grupo* novoVetorGrupos = NULL;
@@ -223,11 +225,12 @@ int main(int argc, char const *argv[])
 
         } while (houveCombinacao);
 
-        /*----------------------FIM DO LOOP----------------------*/
-        
         printf("------------------\nImplicantes Primos:\n");
         imprimirFila(primos);    
         printf("------------------\n");
+
+        /*----------------------FIM DO LOOP DE REAGRUPAMENTO----------------------*/
+        
 
         /*----------------------CRIAÇÃO DA MATRIZ----------------------*/
 
@@ -255,18 +258,46 @@ int main(int argc, char const *argv[])
             linha = linha->proximo;
         }
 
-        /*----------------------FIM DA CRIAÇÃO DA MATRIZ----------------------*/
-
         imprimirTabela(tabela, primos, implicantesIniciais, qtdPrimos, qtdImplicantes);
 
-        /*----------------------SELECIONAR OS IMPLICANTES ESSENCIAIS----------------------*/
+        /*----------------------FIM DA CRIAÇÃO DA MATRIZ----------------------*/
 
         
+        /*----------------------SELECIONAR OS IMPLICANTES ESSENCIAIS----------------------*/
+
+        bool* termosOriginais = calloc(qtdImplicantes, sizeof(bool)); //seria referente ao cabçalho das linhas 
+        //vetor binário que contém a informação dos implicantes iniciais, indica se um implicante já foi coberto ou não
+        
+
+        bool* primosSelecionados = calloc(qtdPrimos, sizeof(bool)); //seria referente ao cabçalho das colunas
+        //vetor binário que contém a informação dos implicantes primos, indica se um implicante escolhido como essencial
+
+        for (uint32_t j = 0; j < qtdImplicantes; j++) { //percorre os termos origianis e conta quantos implicantes primos os cobrem
+
+            uint32_t count = 0; //quantidade de termos que cobrem a expressão original
+            uint32_t ultimo = -1; //guarda o índice do último implicante que cobre esse mintermo
+            for (uint32_t i = 0; i < qtdPrimos; i++) { //percore todas as linhas (i) daquela coluna (j)
+                if (tabela[i][j] == 1) {
+                    count++;
+                    ultimo = i;
+                }
+        }
+
+        if (count == 1) { //se apenas um implicante primo cobre aquele termo, ele é essencial
+            primosSelecionados[ultimo] = true;// marca esse implicante primo como essencial
+            for (uint32_t k = 0; k < qtdImplicantes; k++) { //daí, percorre a tabela na coluna desse implicante primo, linha a linha
+                if (tabela[ultimo][k] == 1) { //tabela[ultimo][k] é a coluna do implicante primo primos[ultimo]
+                    termosOriginais[k] = true; //seta todos os termos que esse primo cobria como cobertos no vetor binário das expressões originais 
+                }
+            }
+        }
+
+        //implementar a cobertura para primos NÃO ESSENCIAIS (que cobre mais que um termo original)
+        //enquanto existirem termos originais não cobertos, continuar o processo
 
         /*----------------------IMPLICANTES ESSENCIAIS SELECIONADOS----------------------*/
 
 
-       /*----------------------LIBERAÇÃO DE MEMÓRIA----------------------*/
 
 
         fclose(input);
