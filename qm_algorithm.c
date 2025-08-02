@@ -282,12 +282,13 @@ int main(int argc, char const *argv[])
                     ultimo = i;
                 }
         }
-
-        if (count == 1) { //se apenas um implicante primo cobre aquele termo, ele é essencial
-            primosSelecionados[ultimo] = true;// marca esse implicante primo como essencial
-            for (uint32_t k = 0; k < qtdImplicantes; k++) { //daí, percorre a tabela na coluna desse implicante primo, linha a linha
-                if (tabela[ultimo][k] == 1) { //tabela[ultimo][k] é a coluna do implicante primo primos[ultimo]
-                    termosOriginais[k] = true; //seta todos os termos que esse primo cobria como cobertos no vetor binário das expressões originais 
+        
+            if (count == 1) { //se apenas um implicante primo cobre aquele termo, ele é essencial
+                primosSelecionados[ultimo] = true;// marca esse implicante primo como essencial
+                for (uint32_t k = 0; k < qtdImplicantes; k++) { //daí, percorre a tabela na coluna desse implicante primo, linha a linha
+                    if (tabela[ultimo][k] == 1) { //tabela[ultimo][k] é a coluna do implicante primo primos[ultimo]
+                        termosOriginais[k] = true; //seta todos os termos que esse primo cobria como cobertos no vetor binário das expressões originais 
+                    }
                 }
             }
         }
